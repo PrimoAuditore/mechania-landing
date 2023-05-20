@@ -7,6 +7,7 @@ export async function GET({ url }) {
 
 
     console.log("get car")
+    console.log(BASE_HOST);
     let vehicle = await get_vehicle_data(license_plate);
     console.log("AAAA")
     console.log(vehicle)
