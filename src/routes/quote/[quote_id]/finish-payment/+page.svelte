@@ -1,6 +1,6 @@
 <script>
     export let data;
-    import graphic from "../../../images/graphic.svg";
+    import graphic from "../../../../images/graphic.svg";
     import Account from "svelte-material-icons/Account.svelte";
     import { Button } from "@svelteuidev/core";
     import { GithubLogo } from "radix-icons-svelte";
