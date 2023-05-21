@@ -1,18 +1,22 @@
 <script>
     export let data;
     import graphic from "../../../../images/graphic.svg";
+    import logo from "../../../../images/logo-svg.svg";
     import { Button } from "@svelteuidev/core";
 </script>
 
 <div class="container">
-    <div class="top-bar" />
+    <div class="top-bar">
+        <img src={logo} id="logo" alt="Graphic" />
+    </div>
     <div class="left-block">
-        <h1>Contrata Mechania para tu vehiculo.</h1>
-        <img src={graphic} alt="Graphic" />
+        <h2>Una manera simple de cuidar tu vehiculo.</h2>
+        <p id="support-text" />
+        <img src={graphic} id="support-graphic" alt="Graphic" />
     </div>
     <div class="right-block">
         <div id="header">
-            <h2>Gracias por confiar en nosotros.</h2>
+            <h3>Gracias por confiar en nosotros.</h3>
             <p>Los pasos a realizar son los siguientes:</p>
         </div>
 
@@ -35,7 +39,7 @@
                     electrónico.</span
                 >
                 <span class="step"
-                    >2. Reenvía el mismo firmado al mismo correo.</span
+                    >2. Reenvía el contrato firmado al mismo correo.</span
                 >
                 <span class="step"
                     >3. Recibirás respuesta en 24-48 horas hábiles confirmando
@@ -56,9 +60,10 @@
 </div>
 
 <style>
+    @import "../../../../global.css";
     .container {
         display: grid;
-        grid-template-rows: 10% 90%;
+        grid-template-rows: 15% 85%;
         grid-template-columns: 1fr 1fr;
         height: 100vh;
     }
@@ -71,6 +76,7 @@
     .left-block {
         grid-row: 2;
         grid-column: 1;
+        padding-top: 10%;
     }
 
     .right-block {
@@ -80,6 +86,26 @@
         display: grid;
         align-items: center;
         margin-bottom: 50%;
+    }
+    h2 {
+        width: 80%;
+        margin: 20px auto;
+    }
+
+    #support-text {
+        width: 80%;
+        font-size: 1.3rem;
+        margin: 20px auto;
+    }
+    #support-graphic {
+        display: block;
+        margin: 100px auto;
+        width: 60%;
+    }
+
+    #logo {
+        height: 80%;
+        padding: 10px;
     }
 
     #follow-up {
