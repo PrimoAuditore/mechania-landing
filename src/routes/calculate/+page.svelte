@@ -1,6 +1,7 @@
 <script>
-    import { handle_promise } from "svelte/internal";
+    import { add_location, handle_promise } from "svelte/internal";
     import graphic from "../../images/graphic.svg";
+    import logo from "../../images/logo-svg.svg";
     import {
         InputWrapper,
         Input,
@@ -23,15 +24,27 @@
     };
     let btn_allow_quote = false;
     let btn_loading = false;
+    let button_style = {
+        border: "1px solid #19CEDA",
+        color: "#19CEDA",
+    };
 
     function allow_quote() {
-        console.log(btn_allow_quote);
+        console.log(errors);
+        console.log(user_data.license_plate !== "");
+        console.log(errors.license_plate_error !== "");
+        console.log(errors.email_error !== "");
+
         btn_allow_quote =
-            errors.email_error !== "" || errors.license_plate_error !== "";
+            errors.email_error === "" &&
+            errors.license_plate_error === "" &&
+            user_data.license_plate !== "" &&
+            user_data.client_name !== "";
+        console.log(btn_allow_quote);
     }
 
     async function get_quote() {
-         btn_loading = true;
+        btn_loading = true;
         let rs = await fetch("/api/quote", {
             method: "POST",
             body: JSON.stringify(user_data),
@@ -42,7 +55,6 @@
         window.location.href = "/quote/" + quote.id;
     }
     async function handleBlur() {
-        allow_quote();
         var regex = /^[A-Z]{2}[A-Z0-9]{2}\d{2}(\d{2})?$/;
 
         let match = regex.test(user_data.license_plate);
@@ -60,9 +72,9 @@
         } else {
             errors.license_plate_error = "Ingrese una patente valida;";
         }
+        allow_quote();
     }
     async function check_valid_email() {
-        allow_quote();
         var regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
         let match = regex.test(user_data.email);
@@ -72,30 +84,34 @@
         } else {
             errors.email_error = "Ingrese una correo electronico valido.";
         }
+        console.log("aaaa");
+        allow_quote();
     }
 </script>
 
 <div class="container">
-    <div class="top-bar" />
+    <div class="top-bar">
+        <img src={logo} id="logo" alt="Graphic" />
+    </div>
     <div class="left-block">
-        <h1>Calcula el valor de tu pago mensual</h1>
+        <h2>Calcula el valor de tu pago mensual</h2>
         <p>
             Ingresa el valor mensual promedio de tu gasto en combustible, el
             anio de tu vehiculo y el tipo de vehiculo.
         </p>
-        <img src={graphic} alt="Graphic" />
+        <img src={graphic} id="support-graphic" alt="Graphic" />
     </div>
     <div class="right-block">
         <InputWrapper
             id="client_name"
-            label="Nombre / Razon social"
+            label="Nombre / Razon social*"
             description="Ingrese el nombre del titular del vehiculo."
         >
             <Input bind:value={user_data.client_name} />
         </InputWrapper>
         <InputWrapper
             id="client_email"
-            label="Correo electronico"
+            label="Correo electronico*"
             description="Ingrese el correo electronico donde desee recibir informacion y notificaciones del producto."
             error={errors.email_error}
         >
@@ -103,7 +119,7 @@
         </InputWrapper>
         <InputWrapper
             id="license_plate"
-            label="Patente de vehiculo"
+            label="Patente de vehiculo*"
             description="Ingrese la patente del vehiculo que desea asegurar."
             error={errors.license_plate_error}
         >
@@ -120,33 +136,32 @@
         {/if}
         <InputWrapper
             id="fuel_consumption"
-            label="Consumo de combustible"
+            label="Consumo de combustible*"
             description="Ingrese un estimado de lo que gasta mensualmente en combustible en el vehiculo"
         >
             <NumberInput
-                hideControls
-                defaultValue={5000}
-                parser={(value) => {
-                    console.log(value.split("$"));
-                    user_data.fuel_consumption = parseFloat(
-                        value.split("$")[1].trim()
-                    );
-                    value.replace(/$s?|(,*)/g, "");
-                }}
-                min={5000}
+                defaultValue={10000}
+                parser={(value) => value.replace(/\$|,/g, "")}
                 formatter={(value) =>
                     !Number.isNaN(parseFloat(value))
-                        ? ("$ " + value).replace(/B(?=(d{3})+(?!d))/g, ",")
+                        ? ("$ " + value).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                         : "$ "}
             />
         </InputWrapper>
-        <Button loading={btn_loading} disabled={btn_allow_quote} on:click={get_quote} variant="light"
-            >Calcular costo mensual</Button
+        <Button
+            style="margin: 50px 50px;  display: block;"
+            id="button"
+            override={button_style}
+            loading={btn_loading}
+            disabled={!btn_allow_quote}
+            on:click={get_quote}
+            variant="outline">Calcular costo mensual</Button
         >
     </div>
 </div>
 
 <style>
+    @import "../../global.css";
     #button-list {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -166,9 +181,12 @@
         display: block;
         margin: 0 auto;
     }
+    #button {
+        width: 70%;
+    }
     .container {
         display: grid;
-        grid-template-rows: 10% 90%;
+        grid-template-rows: 15% 85%;
         grid-template-columns: 1fr 1fr;
         height: 100vh;
     }
@@ -181,6 +199,7 @@
     .left-block {
         grid-row: 2;
         grid-column: 1;
+        padding-top: 10%;
     }
 
     .right-block {
@@ -192,7 +211,7 @@
         width: 80%;
     }
 
-    h1 {
+    h2 {
         width: 80%;
         margin: 20px auto;
     }
@@ -203,10 +222,15 @@
         margin: 20px auto;
     }
 
-    img {
+    #support-graphic {
         display: block;
         margin: 100px auto;
         width: 60%;
+    }
+
+    #logo {
+        height: 80%;
+        padding: 10px;
     }
 
     #plan-result {
