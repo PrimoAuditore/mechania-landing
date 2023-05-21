@@ -230,6 +230,7 @@
 
     #logo {
         height: 80%;
+        padding: 10px;
     }
 
     #plan-result {
