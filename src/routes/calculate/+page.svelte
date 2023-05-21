@@ -18,7 +18,7 @@
     let user_data = {
         license_plate: "",
         email: "",
-        fuel_consumption: 5000,
+        fuel_consumption: 10000,
         client_name: "",
     };
     let btn_allow_quote = false;
