@@ -3,6 +3,10 @@
     import graphic from "../../../../images/graphic.svg";
     import logo from "../../../../images/logo-svg.svg";
     import { Button } from "@svelteuidev/core";
+    let button_style = {
+        border: "1px solid #19CEDA",
+        color: "#19CEDA",
+    };
 </script>
 
 <div class="container">
@@ -50,6 +54,7 @@
         <div id="actions">
             {#if data.plan.payment_link !== null}
                 <Button
+                    override={button_style}
                     variant="outline"
                     href={data.plan.payment_link}
                     target="_blank">Inscribir medio de pago</Button

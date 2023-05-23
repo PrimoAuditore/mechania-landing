@@ -7,14 +7,12 @@
         Input,
         NumberInput,
         Button,
+        Loader,
     } from "@svelteuidev/core";
-    import { writable } from "svelte/store";
-    import { error } from "@sveltejs/kit";
     let errors = {
         license_plate_error: "",
         email_error: "",
     };
-    let license_plate = "";
     let vehicle = null;
     let user_data = {
         license_plate: "",
@@ -25,22 +23,24 @@
     let btn_allow_quote = false;
     let btn_loading = false;
     let button_style = {
+        display: "block",
+        margin: "0 auto",
         border: "1px solid #19CEDA",
         color: "#19CEDA",
     };
 
+    function upper_func() {
+        user_data.license_plate = user_data.license_plate.toUpperCase();
+
+    }
+
     function allow_quote() {
-        console.log(errors);
-        console.log(user_data.license_plate !== "");
-        console.log(errors.license_plate_error !== "");
-        console.log(errors.email_error !== "");
 
         btn_allow_quote =
             errors.email_error === "" &&
             errors.license_plate_error === "" &&
             user_data.license_plate !== "" &&
             user_data.client_name !== "";
-        console.log(btn_allow_quote);
     }
 
     async function get_quote() {
@@ -123,7 +123,11 @@
             description="Ingrese la patente del vehiculo que desea asegurar."
             error={errors.license_plate_error}
         >
-            <Input on:blur={handleBlur} bind:value={user_data.license_plate} />
+            <Input
+                on:blur={handleBlur}
+                on:keyup={upper_func}
+                bind:value={user_data.license_plate}
+            />
         </InputWrapper>
         {#if vehicle !== null}
             <h3>
@@ -148,15 +152,28 @@
                         : "$ "}
             />
         </InputWrapper>
-        <Button
-            style="margin: 50px 50px;  display: block;"
-            id="button"
-            override={button_style}
-            loading={btn_loading}
-            disabled={!btn_allow_quote}
-            on:click={get_quote}
-            variant="outline">Calcular costo mensual</Button
-        >
+        <div id="actions">
+            {#if btn_loading == true}
+                <div id="loader">
+                    <Loader
+                        id="loader"
+                        style="display: block; margin: 50px auto"
+                        variant="dots"
+                        override={button_style}
+                    />
+                </div>
+            {:else}
+                <Button
+                    style="margin: 50px auto;  display: block;"
+                    id="button"
+                    override={button_style}
+                    loading={btn_loading}
+                    disabled={!btn_allow_quote}
+                    on:click={get_quote}
+                    variant="outline">Calcular costo mensual</Button
+                >
+            {/if}
+        </div>
     </div>
 </div>
 
@@ -176,6 +193,7 @@
         display: grid;
         justify-items: center;
         text-align: center;
+        margin-top: 50px;
     }
     svg {
         display: block;
@@ -245,5 +263,10 @@
         color: #19ceda;
         font-size: 3.5rem;
         font-weight: 700;
+    }
+
+    #actions svg {
+        display: block;
+        margin: 0 auto;
     }
 </style>
