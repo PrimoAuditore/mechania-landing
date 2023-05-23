@@ -9,13 +9,14 @@
     import MapMarker from "svelte-material-icons/MapMarker.svelte";
     import ArrowRightBoldCircleOutline from "svelte-material-icons/ArrowRightBoldCircleOutline.svelte";
     import Whatsapp from "svelte-material-icons/Whatsapp.svelte";
-    import { Button } from "@svelteuidev/core";
+    import { Button, Loader } from "@svelteuidev/core";
     import { GithubLogo } from "radix-icons-svelte";
 
     let button_style = {
         border: "1px solid #19CEDA",
         color: "#19CEDA",
     };
+    let loading = false;
 </script>
 
 <div class="container">
@@ -67,24 +68,38 @@
             <p>En un compromiso anual de 12 pagos.</p>
         </div>
         <div id="actions">
-            <Button
-                override={button_style}
-                href="/quote/{data.quote.id}/options"
-                variant="outline"
-            >
-                <ArrowRightBoldCircleOutline size="1.5em" />
-                Contratar plan
-            </Button>
-            <span />
-            <Button
-                override={button_style}
-                href="https://wa.me/message/GUCU2536566YI1"
-                target="_blank"
-                variant="outline"
-            >
-                <Whatsapp size="1.5em" />
-                Realizar consultas
-            </Button>
+            {#if loading == true}
+                <div id="loader">
+                    <Loader
+                        id="loader"
+                        style="display: block; margin: 50px auto"
+                        variant="dots"
+                        override={button_style}
+                    />
+                </div>
+            {:else}
+                <Button
+                    override={button_style}
+                    href="/quote/{data.quote.id}/options"
+                    on:click={() => {
+                        loading = true;
+                    }}
+                    variant="outline"
+                >
+                    <ArrowRightBoldCircleOutline size="1.5em" />
+                    Contratar plan
+                </Button>
+                <span />
+                <Button
+                    override={button_style}
+                    href="https://wa.me/message/GUCU2536566YI1"
+                    target="_blank"
+                    variant="outline"
+                >
+                    <Whatsapp size="1.5em" />
+                    Realizar consultas
+                </Button>
+            {/if}
         </div>
     </div>
 </div>
@@ -162,5 +177,11 @@
 
     .price {
         font-weight: 600;
+    }
+    #loader {
+        display: grid;
+        justify-items: center;
+        text-align: center;
+        margin-top: 50px;
     }
 </style>

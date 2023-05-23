@@ -2,7 +2,7 @@
     export let data;
     import graphic from "../../../../images/graphic.svg";
     import logo from "../../../../images/logo-svg.svg";
-    import { Button, ActionIcon } from "@svelteuidev/core";
+    import { Button, ActionIcon, Loader } from "@svelteuidev/core";
     import { GithubLogo } from "radix-icons-svelte";
     import CreditCard from "svelte-material-icons/CreditCard.svelte";
     import Cash from "svelte-material-icons/Cash.svelte";
@@ -35,7 +35,7 @@
     let creating_plan = false;
 
     async function hire_plan() {
-        let creating_plan = true;
+        creating_plan = true;
         let rs = await fetch("/api/plan", {
             method: "POST",
             body: JSON.stringify({
@@ -183,14 +183,25 @@
             </div>
         </div>
         <div id="actions">
-            <Button
-                disabled={creating_plan ||
-                    payment_method == null ||
-                    sign_method == null}
-                override={button_style}
-                variant="outline"
-                on:click={hire_plan}>Contratar Plan</Button
-            >
+            {#if creating_plan == true}
+                <div id="loader">
+                    <Loader
+                        id="loader"
+                        style="display: block; margin: 50px auto"
+                        variant="dots"
+                        override={button_style}
+                    />
+                </div>
+            {:else}
+                <Button
+                    disabled={creating_plan ||
+                        payment_method == null ||
+                        sign_method == null}
+                    override={button_style}
+                    variant="outline"
+                    on:click={hire_plan}>Contratar Plan</Button
+                >
+            {/if}
         </div>
     </div>
 </div>
@@ -252,5 +263,11 @@
 
     #actions button {
         display: block;
+    }
+    #loader {
+        display: grid;
+        justify-items: center;
+        text-align: center;
+        margin-top: 50px;
     }
 </style>

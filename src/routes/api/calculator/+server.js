@@ -8,8 +8,6 @@ export async function GET({ url, params }) {
     const vehicle_year = url.searchParams.get('vehicle_year');
 
     let monthly_payment = await calculateMonthlyPayment(vehicle_type, vehicle_year, fuel_consumption);
-    console.log("rs");
-    console.log(monthly_payment);
 
     return json(monthly_payment)
 
@@ -36,17 +34,13 @@ async function calculateMonthlyPayment(vehicle_type, vehicle_year, fuel_expense)
             return response.json();
         })
         .then((data) => {
-            console.log("data")
-            console.log(data)
             return data;
 
 
         })
         .catch((err) => {
             console.log(err);
-            console.log("err::::::" + err)
         });
 
-    console.log("rs2");
     return rs;
 }

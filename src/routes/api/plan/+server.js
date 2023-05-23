@@ -4,17 +4,8 @@ import { error, json } from '@sveltejs/kit';
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
     let body = await request.json();
-    console.log("body");
-    console.log(body);
-
-
     let plan = await create_plan(body);
-    console.log(plan);
-
-
     return json(plan)
-
-
 }
 
 async function create_plan(body) {
@@ -33,7 +24,6 @@ async function create_plan(body) {
             return response.json();
         })
         .then((json) => {
-            console.log(json);
             return json;
         })
         .catch((err) => {

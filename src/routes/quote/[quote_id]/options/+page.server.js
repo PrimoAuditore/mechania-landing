@@ -16,7 +16,6 @@ async function get_quote(quote_id){
             return response.json();
         })
         .then((json) => {
-            console.log(json)
             return json;
         })
         .catch((err) => {

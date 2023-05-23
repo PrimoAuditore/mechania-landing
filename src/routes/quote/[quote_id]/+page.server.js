@@ -7,7 +7,7 @@ export async function load({ params }) {
     };
 }
 
-async function get_quote(quote_id){
+async function get_quote(quote_id) {
     const rs = await fetch(BASE_HOST + "/quote/" + quote_id)
         .then((response) => {
             if (!response.ok) {
@@ -16,7 +16,6 @@ async function get_quote(quote_id){
             return response.json();
         })
         .then((json) => {
-            console.log(json)
             return json;
         })
         .catch((err) => {
