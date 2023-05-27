@@ -8,12 +8,16 @@
         NumberInput,
         Button,
         Loader,
+        NativeSelect,
     } from "@svelteuidev/core";
     let errors = {
         license_plate_error: "",
         email_error: "",
     };
     let vehicle = null;
+    let manual_vehicle_creation = true;
+    let vehicle_types = ["test"];
+
     let user_data = {
         license_plate: "",
         email: "",
@@ -31,11 +35,9 @@
 
     function upper_func() {
         user_data.license_plate = user_data.license_plate.toUpperCase();
-
     }
 
     function allow_quote() {
-
         btn_allow_quote =
             errors.email_error === "" &&
             errors.license_plate_error === "" &&
@@ -45,6 +47,14 @@
 
     async function get_quote() {
         btn_loading = true;
+
+        if (manual_vehicle_creation) {
+            let rs = await fetch("/api/vehicle/manual", {
+                method: "POST",
+                body: JSON.stringify(),
+            });
+        }
+
         let rs = await fetch("/api/quote", {
             method: "POST",
             body: JSON.stringify(user_data),
@@ -68,6 +78,13 @@
 
             // Get vehicle data
             const rs = await fetch("/api/vehicle?" + params);
+
+            if (rs.status !== 200 && rs.status !== 201) {
+                // Get vehicle data
+                const rs = await fetch("/api/vehicle-type?" + params);
+                vehicle_types = await rs.json();
+            }
+
             vehicle = await rs.json();
         } else {
             errors.license_plate_error = "Ingrese una patente valida;";
@@ -138,6 +155,69 @@
                     vehicle.year}
             </h3>
         {/if}
+
+        {#if vehicle === null && manual_vehicle_creation === true}
+            <div id="vehicle-form">
+                <InputWrapper id="vehicle_make" label="Marca del vehiculo">
+                    <Input bind:value={user_data.license_plate} />
+                </InputWrapper>
+                <InputWrapper id="vehicle_model" label="Modelo del vehiculo">
+                    <Input bind:value={user_data.license_plate} />
+                </InputWrapper>
+
+                <NativeSelect
+                    data={[
+                        "2024",
+                        "2023",
+                        "2022",
+                        "2021",
+                        "2020",
+                        "2019",
+                        "2018",
+                        "2017",
+                        "2016",
+                        "2015",
+                        "2014",
+                        "2013",
+                        "2012",
+                        "2011",
+                        "2010",
+                        "2009",
+                        "2008",
+                        "2007",
+                        "2006",
+                        "2005",
+                        "2004",
+                        "2003",
+                        "2002",
+                        "2001",
+                        "2000",
+                        "1999",
+                        "1998",
+                        "1997",
+                        "1996",
+                        "1995",
+                        "1994",
+                        "1993",
+                        "1992",
+                        "1991",
+                        "1990",
+                        "1989",
+                        "1988",
+                        "1987",
+                        "1986",
+                        "1985",
+                        "1984",
+                        "1983",
+                        "1982",
+                        "1981",
+                        "1980",
+                    ]}
+                    label="Anio"
+                />
+                <NativeSelect data={vehicle_types} label="Anio" />
+            </div>
+        {/if}
         <InputWrapper
             id="fuel_consumption"
             label="Consumo de combustible*"
@@ -146,6 +226,7 @@
             <NumberInput
                 defaultValue={10000}
                 parser={(value) => value.replace(/\$|,/g, "")}
+                bind:value={user_data.fuel_consumption}
                 formatter={(value) =>
                     !Number.isNaN(parseFloat(value))
                         ? ("$ " + value).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -268,5 +349,11 @@
     #actions svg {
         display: block;
         margin: 0 auto;
+    }
+
+    #vehicle-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 10px;
     }
 </style>

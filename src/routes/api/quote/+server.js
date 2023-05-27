@@ -4,15 +4,9 @@ import { error, json } from '@sveltejs/kit';
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
     let body = await request.json();
-
-
     let quote = await create_quote(body);
-    console.log(quote);
-
 
     return json(quote)
-
-
 }
 
 async function create_quote(body) {

@@ -32,7 +32,6 @@
 
     function hireService() {
         // redirect to /plan/hire.
-        console.log(plan);
 
         window.location.href = "/plan/" + plan.id;
     }

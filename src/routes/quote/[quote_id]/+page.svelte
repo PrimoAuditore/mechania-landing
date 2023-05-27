@@ -12,6 +12,8 @@
     import { Button, Loader } from "@svelteuidev/core";
     import { GithubLogo } from "radix-icons-svelte";
 
+    console.log(data);
+
     let button_style = {
         border: "1px solid #19CEDA",
         color: "#19CEDA",
