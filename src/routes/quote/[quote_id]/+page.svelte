@@ -65,7 +65,7 @@
             <p>
                 <span class="mechania-color price"
                     >${data.quote.monthly_cost.toLocaleString("es-CL")}</span
-                > Mensuales + IVA
+                > Mensuales - IVA incluido
             </p>
             <p>En un compromiso anual de 12 pagos.</p>
         </div>
