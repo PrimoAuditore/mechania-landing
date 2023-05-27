@@ -146,6 +146,7 @@
             <NumberInput
                 defaultValue={10000}
                 parser={(value) => value.replace(/\$|,/g, "")}
+                bind:value={user_data.fuel_consumption}
                 formatter={(value) =>
                     !Number.isNaN(parseFloat(value))
                         ? ("$ " + value).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
