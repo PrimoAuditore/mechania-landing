@@ -1,5 +1,9 @@
 <script>
-    import { add_location, handle_promise } from "svelte/internal";
+    import {
+        add_location,
+        handle_promise,
+        null_to_empty,
+    } from "svelte/internal";
     import graphic from "../../images/graphic.svg";
     import logo from "../../images/logo-svg.svg";
     import {
@@ -15,7 +19,7 @@
         email_error: "",
     };
     let vehicle = null;
-    let manual_vehicle_creation = true;
+    let manual_vehicle_creation = false;
     let vehicle_types = ["test"];
 
     let user_data = {
@@ -51,8 +55,15 @@
         if (manual_vehicle_creation) {
             let rs = await fetch("/api/vehicle/manual", {
                 method: "POST",
-                body: JSON.stringify(),
+                body: JSON.stringify({
+                    ...vehicle,
+                    license_plate: user_data.license_plate,
+                }),
             });
+
+            if (!rs.ok) {
+                throw new Error(rs.statusText);
+            }
         }
 
         let rs = await fetch("/api/quote", {
@@ -64,7 +75,7 @@
         btn_loading = false;
         window.location.href = "/quote/" + quote.id;
     }
-    async function handleBlur() {
+    async function get_vehicle_data() {
         var regex = /^[A-Z]{2}[A-Z0-9]{2}\d{2}(\d{2})?$/;
 
         let match = regex.test(user_data.license_plate);
@@ -78,14 +89,22 @@
 
             // Get vehicle data
             const rs = await fetch("/api/vehicle?" + params);
+            console.log(rs);
 
             if (rs.status !== 200 && rs.status !== 201) {
-                // Get vehicle data
+                // If lookup fail, get vehicle types needed for manual vehicle creation
                 const rs = await fetch("/api/vehicle-type?" + params);
                 vehicle_types = await rs.json();
+                vehicle = {
+                    make: "",
+                    model: "",
+                    year: "",
+                    vehicle_type: "",
+                };
+                manual_vehicle_creation = true;
+            } else {
+                vehicle = await rs.json();
             }
-
-            vehicle = await rs.json();
         } else {
             errors.license_plate_error = "Ingrese una patente valida;";
         }
@@ -141,12 +160,12 @@
             error={errors.license_plate_error}
         >
             <Input
-                on:blur={handleBlur}
+                on:blur={get_vehicle_data}
                 on:keyup={upper_func}
                 bind:value={user_data.license_plate}
             />
         </InputWrapper>
-        {#if vehicle !== null}
+        {#if vehicle !== null && manual_vehicle_creation === false}
             <h3>
                 Tu vehiculo es: {vehicle.make +
                     " " +
@@ -156,16 +175,17 @@
             </h3>
         {/if}
 
-        {#if vehicle === null && manual_vehicle_creation === true}
+        {#if manual_vehicle_creation === true}
             <div id="vehicle-form">
                 <InputWrapper id="vehicle_make" label="Marca del vehiculo">
-                    <Input bind:value={user_data.license_plate} />
+                    <Input bind:value={vehicle.make} />
                 </InputWrapper>
                 <InputWrapper id="vehicle_model" label="Modelo del vehiculo">
-                    <Input bind:value={user_data.license_plate} />
+                    <Input bind:value={vehicle.model} />
                 </InputWrapper>
 
                 <NativeSelect
+                    bind:value={vehicle.year}
                     data={[
                         "2024",
                         "2023",
@@ -215,7 +235,11 @@
                     ]}
                     label="Anio"
                 />
-                <NativeSelect data={vehicle_types} label="Anio" />
+                <NativeSelect
+                    bind:value={vehicle.vehicle_type}
+                    data={vehicle_types}
+                    label="Tipo de vehiculo"
+                />
             </div>
         {/if}
         <InputWrapper
