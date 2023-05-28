@@ -1,5 +1,9 @@
 <script>
-    import { add_location, handle_promise } from "svelte/internal";
+    import {
+        add_location,
+        handle_promise,
+        null_to_empty,
+    } from "svelte/internal";
     import graphic from "../../images/graphic.svg";
     import logo from "../../images/logo-svg.svg";
     import {
@@ -8,12 +12,16 @@
         NumberInput,
         Button,
         Loader,
+        NativeSelect,
     } from "@svelteuidev/core";
     let errors = {
         license_plate_error: "",
         email_error: "",
     };
     let vehicle = null;
+    let manual_vehicle_creation = false;
+    let vehicle_types = ["test"];
+
     let user_data = {
         license_plate: "",
         email: "",
@@ -31,11 +39,9 @@
 
     function upper_func() {
         user_data.license_plate = user_data.license_plate.toUpperCase();
-
     }
 
     function allow_quote() {
-
         btn_allow_quote =
             errors.email_error === "" &&
             errors.license_plate_error === "" &&
@@ -45,6 +51,21 @@
 
     async function get_quote() {
         btn_loading = true;
+
+        if (manual_vehicle_creation) {
+            let rs = await fetch("/api/vehicle/manual", {
+                method: "POST",
+                body: JSON.stringify({
+                    ...vehicle,
+                    license_plate: user_data.license_plate,
+                }),
+            });
+
+            if (!rs.ok) {
+                throw new Error(rs.statusText);
+            }
+        }
+
         let rs = await fetch("/api/quote", {
             method: "POST",
             body: JSON.stringify(user_data),
@@ -54,7 +75,7 @@
         btn_loading = false;
         window.location.href = "/quote/" + quote.id;
     }
-    async function handleBlur() {
+    async function get_vehicle_data() {
         var regex = /^[A-Z]{2}[A-Z0-9]{2}\d{2}(\d{2})?$/;
 
         let match = regex.test(user_data.license_plate);
@@ -68,7 +89,22 @@
 
             // Get vehicle data
             const rs = await fetch("/api/vehicle?" + params);
-            vehicle = await rs.json();
+            console.log(rs);
+
+            if (rs.status !== 200 && rs.status !== 201) {
+                // If lookup fail, get vehicle types needed for manual vehicle creation
+                const rs = await fetch("/api/vehicle-type?" + params);
+                vehicle_types = await rs.json();
+                vehicle = {
+                    make: "",
+                    model: "",
+                    year: "",
+                    vehicle_type: "",
+                };
+                manual_vehicle_creation = true;
+            } else {
+                vehicle = await rs.json();
+            }
         } else {
             errors.license_plate_error = "Ingrese una patente valida;";
         }
@@ -124,12 +160,12 @@
             error={errors.license_plate_error}
         >
             <Input
-                on:blur={handleBlur}
+                on:blur={get_vehicle_data}
                 on:keyup={upper_func}
                 bind:value={user_data.license_plate}
             />
         </InputWrapper>
-        {#if vehicle !== null}
+        {#if vehicle !== null && manual_vehicle_creation === false}
             <h3>
                 Tu vehiculo es: {vehicle.make +
                     " " +
@@ -137,6 +173,74 @@
                     " " +
                     vehicle.year}
             </h3>
+        {/if}
+
+        {#if manual_vehicle_creation === true}
+            <div id="vehicle-form">
+                <InputWrapper id="vehicle_make" label="Marca del vehiculo">
+                    <Input bind:value={vehicle.make} />
+                </InputWrapper>
+                <InputWrapper id="vehicle_model" label="Modelo del vehiculo">
+                    <Input bind:value={vehicle.model} />
+                </InputWrapper>
+
+                <NativeSelect
+                    bind:value={vehicle.year}
+                    data={[
+                        "2024",
+                        "2023",
+                        "2022",
+                        "2021",
+                        "2020",
+                        "2019",
+                        "2018",
+                        "2017",
+                        "2016",
+                        "2015",
+                        "2014",
+                        "2013",
+                        "2012",
+                        "2011",
+                        "2010",
+                        "2009",
+                        "2008",
+                        "2007",
+                        "2006",
+                        "2005",
+                        "2004",
+                        "2003",
+                        "2002",
+                        "2001",
+                        "2000",
+                        "1999",
+                        "1998",
+                        "1997",
+                        "1996",
+                        "1995",
+                        "1994",
+                        "1993",
+                        "1992",
+                        "1991",
+                        "1990",
+                        "1989",
+                        "1988",
+                        "1987",
+                        "1986",
+                        "1985",
+                        "1984",
+                        "1983",
+                        "1982",
+                        "1981",
+                        "1980",
+                    ]}
+                    label="Anio"
+                />
+                <NativeSelect
+                    bind:value={vehicle.vehicle_type}
+                    data={vehicle_types}
+                    label="Tipo de vehiculo"
+                />
+            </div>
         {/if}
         <InputWrapper
             id="fuel_consumption"
@@ -269,5 +373,11 @@
     #actions svg {
         display: block;
         margin: 0 auto;
+    }
+
+    #vehicle-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 10px;
     }
 </style>

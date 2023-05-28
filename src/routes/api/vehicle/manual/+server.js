@@ -4,13 +4,17 @@ import { error, json } from '@sveltejs/kit';
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
     let body = await request.json();
-    let quote = await create_quote(body);
+    try {
+        let vehicle = await create_vehicle_manual(body);
+        return json(vehicle)
+    } catch (err) {
+        return json(err, { status: 500 })
+    }
 
-    return json(quote)
 }
 
-async function create_quote(body) {
-    let rs = await fetch(BASE_HOST + "/quote", {
+async function create_vehicle_manual(body) {
+    let rs = await fetch(BASE_HOST + "/vehicle/manual", {
         method: "post",
         headers: {
             "content-type": "application/json",
@@ -19,17 +23,15 @@ async function create_quote(body) {
     })
         .then((response) => {
             if (!response.ok) {
-                console.log(response.statusText);
-                console.log("not ok");
+                throw new Error(response.text.toString());
             }
             return response.json();
         })
         .then((json) => {
-            console.log(json);
             return json;
         })
         .catch((err) => {
-            console.error(err);
+            throw err;
         });
 
     return rs;
